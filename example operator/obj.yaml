@@ -1,9 +1,3 @@
-#apiVersion: kopf.dev/v1
-#kind: EphemeralVolumeClaim
-#metadata:
-#  name: my-claim
-
-
 # A demo custom resource for the Kopf example operators.
 apiVersion: kopf.dev/v1
 kind: KopfExample
