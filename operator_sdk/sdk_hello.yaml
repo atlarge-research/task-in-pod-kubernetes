@@ -1,0 +1,4 @@
+apiVersion: mygroup.example.com/v1
+kind: Hello
+metadata:
+        name: my-hello
