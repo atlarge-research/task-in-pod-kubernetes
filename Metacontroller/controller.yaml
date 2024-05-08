@@ -15,5 +15,5 @@ spec:
       containers:
       - name: mypod-controller
         image: busybox
-        command: ["./sync"]
+        command: ["python", "sync.py"]
 
