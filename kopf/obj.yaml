@@ -1,0 +1,28 @@
+#apiVersion: kopf.dev/v1
+#kind: EphemeralVolumeClaim
+#metadata:
+#  name: my-claim
+
+
+# A demo custom resource for the Kopf example operators.
+#apiVersion: kopf.dev/v1
+#kind: KopfExample
+#metadata:
+#  name: kopf-example-1
+#  labels:
+#    somelabel: somevalue
+#  annotations:
+#    someannotation: somevalue
+#spec:
+#  duration: 1m
+#  field: value
+#  items:
+#  - item1
+#  - item2
+
+apiVersion: example.com/v1
+kind: MyPod
+metadata:
+  name: mypod-1
+spec:
+  image: busybox
