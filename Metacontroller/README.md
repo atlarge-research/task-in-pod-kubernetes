@@ -1,8 +1,8 @@
-# Sequence of commands to execute:
+# Metacontroller framework #
+
+## Sequence of commands to execute: ##
 
 <sub>(Assuming the minikube is running already)</sub>
-
-
 
 ### 1. Run the sync.py or sync.go code: ###
 
