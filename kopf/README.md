@@ -1,4 +1,4 @@
-# Kopf Framework #
+# Kopf framework #
 
 ## Sequence of commands to execute: ##
 
