@@ -8,7 +8,7 @@
 
 - sync.py: ```python sync.py```
 
-- sync.go: ```go run "your-path\sync.go" -kubeconfig="$env:USERPROFILE\.kube\config```
+- sync.go: ```go run "your-path\sync.go" -kubeconfig="$env:USERPROFILE\.kube\config"```
 
 ### 2. In another terminal and run the following commands: ###
 1. ```kubectl apply -f crd.yaml```
