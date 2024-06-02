@@ -9,7 +9,7 @@
 - ```kopf run kopf.py --verbose```
 
 
-### 2. In another terminal and run the following commands: ###
+### 2. In another terminal run the following commands: ###
 1. ```kubectl apply -f crd.yaml```
 3. ```kubectl apply -f obj.yaml```
 
