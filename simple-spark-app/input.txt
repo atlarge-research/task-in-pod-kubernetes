@@ -1,0 +1,7 @@
+After you've obtained the assignment code, there are two possible ways to load that code in IntelliJ: either as a whole
+project, or as a single module in a project. IntelliJ can only open one project in each window, but each project may have
+multiple modules.
+We recommend importing our code as separate projects, since our assignments contain duplicated files that sometimes
+confuse IntelliJ, however you may choose to use a single project if you wish; see the bottom of the page for instructions.
+(Benefits of the single-project workflow include only needing to set our settings for a single project instead of all new
+projects, and having the ability to view files from all assignments in the same IntelliJ window.)
