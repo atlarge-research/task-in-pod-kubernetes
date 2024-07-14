@@ -1,0 +1,13 @@
+$runtimes = @()
+for ($i = 1; $i -le 100; $i++) {
+	Write-Host "Running iteration $i..."
+	$startTime = Get-Date
+	kubectl apply -f obj.yaml
+	$endTime = Get-Date
+	$runtime = New-TimeSpan -Start $startTime -End $endTime
+	$runtimes += $runtime.TotalMilliseconds
+	
+	kubectl delete -f obj.yaml
+}
+
+$runtimes | ForEach-Object { [PSCustomObject]@{ RuntimeMilliseconds = $_ } } | Export-Csv -Path "POD_KOPF_runtimes.csv" -Append -NoTypeInformation
