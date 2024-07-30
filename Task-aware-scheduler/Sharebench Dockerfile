@@ -1,0 +1,19 @@
+FROM yourCustomSparkImage:latest
+
+USER root
+RUN mkdir -p /opt/sharebench && \
+    mkdir -p /opt/sharebench/logs && \
+    mkdir -p /opt/sharebench/keyfile && \
+    mkdir -p /opt/spark/conf && \
+    chown -R spark:spark /opt/sharebench && \
+    chmod -R 777 /opt/
+
+COPY docker/jars /opt/sharebench/jars
+COPY docker/tpcds-bin /opt/sharebench/tpcds-bin
+COPY spark-defaults.conf /opt/spark/conf/
+COPY target/scala-2.12/sharebench_2.12-1.0.jar /opt/sharebench/
+COPY docker/queries /opt/sharebench/queries
+COPY docker/workloads /opt/sharebench/workloads
+COPY docker/log4j2.properties /opt/sharebench/jars/
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
+USER 185
