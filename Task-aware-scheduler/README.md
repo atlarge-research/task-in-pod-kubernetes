@@ -20,14 +20,14 @@ This is the workflow to run an application locally but with Kubernetes support. 
   <li> Start Minikube (or similar) cluster: <code>minikube start --kubernetes-version=v1.25.3</code>. We use the Kubernetes version 1.25.3 because it is compatible with Spark and the Kubernetes client version used in the source code.</li>
   <li> Load the docker image to Kubernetes cluster: <code>minikube image load simple-app:latest</code></li>
   <li> In spark-operator folder run: <code>kubectl create serviceaccount spark</code></li>
-  <li> Apply rbac: <code>kubectl apply -f rbac2.yaml</code></li>
+  <li> Apply rbac: <code>kubectl apply -f rbac.yaml</code></li>
   <li> Apply cluster role binding: <code>kubectl apply -f cluster-role-binding.yaml</code></li>
   <li> Apply CRDs: </li>
   <ul> <code>kubectl apply -f crd_executor.yaml</code></ul>
   <ul> <code>kubectl apply -f crd_executor_msg.yaml</code></ul>
   <ul> <code>kubectl apply -f crd_task_update.yaml</code></ul>
   <ul> <code>kubectl apply -f crd_spark_request.yaml</code></ul>
-  <li> In separate tab, run: <code>kopf run sync4.py</code></li>
+  <li> In separate tab, run: <code>kopf run sync.py</code></li>
   <li> Run application <code>bin/spark-submit --master k8s://https://yourAddress --deploy-mode cluster --name simple-app --class org.apache.spark.examples.SparkPi --conf spark.executor.instances=2 --conf spark.kubernetes.container.image=yourImage:latest --conf spark.kubernetes.container.image.pullPolicy=IfNotPresent --conf spark.kubernetes.authenticate.driver.serviceAccountName=spark local:///opt/spark/examples/jars/spark-examples_2.12-3.5.1.jar</code></li>
   <li> After the application has finished, terminate the scheduler.</li>
 </ol>
@@ -46,7 +46,7 @@ kubectl create clusterrolebinding spark-role --clusterrole=edit --serviceaccount
   <li> Generate the data: <code>spark/your-custom-spark/bin/spark-submit --class "ShareBench" --properties-file ./spark-defaults.conf --deploy-mode cluster local:///opt/sharebench/sharebench_2.12-1.0.jar datagen s3a://data /opt/sharebench/tpcds-bin/</code></li>
   <li> Generate metadata: <code>spark/your-custom-spark/bin/spark-submit --class "ShareBench" --properties-file ./spark-defaults.conf --deploy-mode cluster local:///opt/sharebench/sharebench_2.12-1.0.jar metagen s3a://data</code></li>
   <li> Apply all the CRDs as locally </li>
-  <li> In a separate tab, run: <code>kopf run sync4.py</code></li>
+  <li> In a separate tab, run: <code>kopf run sync.py</code></li>
   <li> Run benchmark: <code>spark/your-custom-spark/bin/spark-submit --class "ShareBench" --properties-file ./spark-defaults.conf --deploy-mode cluster local:///opt/sharebench/sharebench_2.12-1.0.jar queries_tpcds 3</code></li>
   <li> To get the logs of the most recent driver: <code>kubectl logs $(kubectl get pods -A --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | awk '{print $2}') -n $(kubectl get pods -A --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | awk '{print $1}') --follow</code></li>
   <li> To get the most recent driver outputs: <code>kubectl logs $(kubectl get pods -A --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | awk '{print $2}') -n $(kubectl get pods -A --sort-by=.metadata.creationTimestamp | grep driver | tail -n 1 | awk '{print $1}') --follow | grep -v "^[0-9]\{2\}/[0-9]\{2\}/[0-9]\{2\} [0-9]\{2\}:[0-9]\{2\}:[0-9]\{2\}"</code></li>
