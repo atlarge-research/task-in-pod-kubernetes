@@ -1,19 +1,15 @@
 import kopf
 import kubernetes.client
 from kubernetes import config
-import json
 
-
-# Load Kubernetes configuration
 config.load_kube_config()
 
-# Dictionary to store executor data
 executor_data_store = {}
-name_tu = ""
+name_task_update = ""
 
 
 def update_task(taskId):
-    global name_tu
+    global name_task_update
     api = kubernetes.client.CustomObjectsApi()
     body = {
         "spec": {
@@ -26,18 +22,18 @@ def update_task(taskId):
         version="v1",
         namespace="default",
         plural="taskupdates",
-        name=name_tu,
+        name=name_task_update,
         body=body
     )
     print("Updated 'completed' spec of taskupdates CR.")
-    print(f"name_tu: {name_tu}")
+    print(f"name_task_update: {name_task_update}")
 
 @kopf.on.create('example.com', 'v1', 'taskupdates')
 def create_fn(spec, meta, **kwargs):
     print("~~~~~~~~~~~~~~~~~~~~ Reached operator - task update ~~~~~~~~~~~~~~~~~~~~~~~~")
     global name_tu
     completed = spec.get('completed')
-    name_tu = meta.get('name')
+    name_task_update = meta.get('name')
     print(f"Completed: {completed}")
 
 @kopf.on.update('example.com', 'v1', 'taskupdates')
