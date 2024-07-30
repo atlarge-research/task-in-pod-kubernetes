@@ -33,11 +33,9 @@ import io.fabric8.kubernetes.api.model.{GenericKubernetesResource, ObjectMeta}
 import io.fabric8.kubernetes.client.{DefaultKubernetesClient, KubernetesClient}
 import io.fabric8.kubernetes.client.Watcher
 import io.fabric8.kubernetes.client.WatcherException
-// import io.fabric8.kubernetes.client.Watch
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
 
 import org.apache.spark.{ExecutorAllocationClient, SparkEnv, TaskState}
-// import org.apache.spark.{ExecutorAllocationClient, SparkEnv}
 import org.apache.spark.deploy.SparkHadoopUtil
 import org.apache.spark.deploy.security.HadoopDelegationTokenManager
 import org.apache.spark.errors.SparkCoreErrors
@@ -225,59 +223,11 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
                 s"from unknown executor with ID $executorId")
           }
         }
-      /* case StatusUpdate(executorId, taskId, state, data, taskCpus, resources) =>
-        scheduler.statusUpdate(taskId, state, data.value)
-        val taskStatusWatcher: Watch = client.genericKubernetesResources(sparkTaskUpdateContext)
-          .inNamespace("default")
-          .watch(new Watcher[GenericKubernetesResource] {
-            override def eventReceived(action: Watcher.Action, resource: GenericKubernetesResource): Unit = {
-              val additionalProperties = resource.getAdditionalProperties.get("spec").asInstanceOf[java.util.Map[String, Any]]
-              val completed = additionalProperties.get("completed").asInstanceOf[Int]
-
-              if (completed == 1) {
-                executorDataMap.get(executorId) match {
-                  case Some(executorInfo) =>
-                    executorInfo.freeCores += taskCpus
-                    resources.foreach { case (k, v) =>
-                      val addresses = v.addresses
-                      executorInfo.resourcesInfo.get(k).foreach { r =>
-                        r.release(addresses)
-                      }
-                    }
-                    logInfo("Calling makeOffers(ex) into StatusUpdate")
-                    makeOffers(executorId)
-                  case None =>
-                    // Ignoring the update since we don't know about the executor.
-                    logWarning(s"Ignored task status update ($taskId state $state) " +
-                      s"from unknown executor with ID $executorId")
-                }
-              } else {
-                logWarning(s"Task info not found for taskId $taskId")
-              }
-
-              // Reset the completed field to 0
-              additionalProperties.put("completed", 0)
-              resource.setAdditionalProperty("spec", additionalProperties)
-
-              client.genericKubernetesResources(sparkTaskUpdateContext)
-                .inNamespace("default")
-                .resource(resource)
-                .patch()
-              logInfo(s"Custom resource taskupdate-$taskId spec 'completed' reset to 0")
-            }
-
-            override def onClose(cause: WatcherException): Unit = {
-              logWarning("Watcher closed", cause)
-            }
-          })
-        logInfo("Watcher closed for SparkTaskUpdate")
-        taskStatusWatcher.close() */
 
       case ShufflePushCompletion(shuffleId, shuffleMergeId, mapIndex) =>
         scheduler.dagScheduler.shufflePushCompleted(shuffleId, shuffleMergeId, mapIndex)
 
       case ReviveOffers =>
-        logInfo("Calling makeOffersOrig() into ReviveOffers")
         makeOffersOrig()
 
       case KillTask(taskId, executorId, interruptThread, reason) =>
@@ -322,7 +272,6 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
         executorDataMap.get(executorId).foreach { data =>
           data.freeCores = data.totalCores
         }
-        logInfo("Calling makeOffers(ex) into LaunchedExecutor")
         makeOffers(executorId)
 
       case MiscellaneousProcessAdded(time: Long,
@@ -514,7 +463,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
             if (id != null && id.nonEmpty) {
               executorId = id
               logInfo(s"ExecutorId retrieved - $executorId")
-              latch.countDown() // Signal that we have retrieved the executorId
+              latch.countDown()
             } else {
               logWarning("ExecutorId is null or empty")
             }
@@ -522,11 +471,10 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
 
           override def onClose(cause: WatcherException): Unit = {
             logError("Watcher closed", cause)
-            latch.countDown() // Ensure latch is decremented to avoid hanging
+            latch.countDown()
           }
         })
 
-      // Wait for the latch to be decremented
       latch.await()
 
       logInfo("Watcher closed for SparkRequest")
@@ -560,7 +508,6 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
     }
 
     private def makeOffers(): Unit = {
-      logInfo("PURE MAKE OFFERS")
       // Make sure no executor is killed while some task is launching on it
       val taskDescs = withLock {
         val objectName = chooseExecutor()
@@ -597,25 +544,7 @@ class CoarseGrainedSchedulerBackend(scheduler: TaskSchedulerImpl, val rpcEnv: Rp
             "messages.")))
     }
 
-    // Make fake resource offers on just one executor
-    private def makeOffersOrig(executorId: String): Unit = {
-      // Make sure no executor is killed while some task is launching on it
-      val taskDescs = withLock {
-        // Filter out executors under killing
-        if (isExecutorActive(executorId)) {
-          val executorData = executorDataMap(executorId)
-          val workOffers = IndexedSeq(buildWorkerOffer(executorId, executorData))
-          scheduler.resourceOffers(workOffers, false)
-        } else {
-          Seq.empty
-        }
-      }
-      if (taskDescs.nonEmpty) {
-        launchTasks(taskDescs)
-      }
-    }
     private def makeOffers(executorId: String): Unit = {
-      logInfo("MAKE OFFERS WITH EXECUTOR ID")
       // Make sure no executor is killed while some task is launching on it
       val taskDescs = withLock {
         val objectName = chooseExecutor()
