@@ -40,8 +40,6 @@ import com.google.common.cache.{Cache, CacheBuilder, RemovalListener, RemovalNot
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import org.slf4j.MDC
 
-// import com.fasterxml.jackson.databind.ObjectMapper
-// import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import io.fabric8.kubernetes.api.model.{GenericKubernetesResource, ObjectMeta}
 import io.fabric8.kubernetes.client.{DefaultKubernetesClient, KubernetesClient}
 import io.fabric8.kubernetes.client.dsl.base.CustomResourceDefinitionContext
@@ -648,7 +646,6 @@ private[spark] class Executor(
       val ser = env.closureSerializer.newInstance()
       logInfo(s"Running $taskName")
       execBackend.statusUpdate(taskId, TaskState.RUNNING, EMPTY_BYTE_BUFFER)
-      // updateNumRunningTasks(executorId, true)
       var taskStartTimeNs: Long = 0
       var taskStartCpu: Long = 0
       startGCTime = computeTotalGcTime()
@@ -868,7 +865,6 @@ private[spark] class Executor(
         setTaskFinishedAndClearInterruptStatus()
         plugins.foreach(_.onTaskSucceeded())
         execBackend.statusUpdate(taskId, TaskState.FINISHED, serializedResult)
-        // updateNumRunningTasks(executorId, false)
       } catch {
         case t: TaskKilledException =>
           logInfo(s"Executor killed $taskName, reason: ${t.reason}")
