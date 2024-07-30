@@ -1,0 +1,35 @@
+FROM apache/spark:3.5.1-scala2.12-java17-ubuntu
+
+USER root
+
+# Install any additional dependencies if needed
+RUN apt-get update && apt-get install -y \
+    gnupg2 wget bash tini libc6 libpam-modules krb5-user libnss3 procps net-tools gosu libnss-wrapper \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy your custom Spark distribution
+#RUN rm -rf /opt/spark/*
+#COPY . /opt/spark/
+RUN rm -rf /opt/spark/jars/spark-core*
+COPY jars/spark-core_2.12-3.5.1.jar /opt/spark/jars/
+COPY . /opt/spark/
+
+RUN set -ex; \
+    chown -R spark:spark /opt/spark; \
+    chmod a+x /opt/spark/bin/*; \
+    chmod a+x /opt/spark/sbin/*; \
+    chmod a+x /opt/spark/python/pyspark/*; \
+    chmod a+x /opt/spark/python/lib/*; \
+    chmod a+x /opt/spark/examples/*; \
+    chmod a+x /opt/spark/data/*;
+
+# If you have an entrypoint script, copy it
+COPY kubernetes/dockerfiles/spark/entrypoint.sh /opt/
+
+ENV SPARK_HOME /opt/spark
+
+WORKDIR /opt/spark/work-dir
+
+USER spark
+
+ENTRYPOINT [ "/opt/entrypoint.sh" ]
