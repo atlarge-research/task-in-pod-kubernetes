@@ -11,16 +11,15 @@ metadata:
   name: spark-role
 rules:
 - apiGroups:
-  - ""  # Empty string represents the core API group
+  - ""
   resources:
   - pods
   verbs:
   - get
   - list
 - apiGroups:
-  - "example.com"  # Custom API group
+  - "example.com"
   resources:
-  - sparkjobs
   - sparkexecutors
   - sparkexecmsgs
   - taskupdates
