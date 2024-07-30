@@ -1,0 +1,50 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: sparkexecutors.example.com
+spec:
+  group: example.com
+  names:
+    kind: SparkExecutor
+    listKind: SparkExecutorList
+    plural: sparkexecutors
+    singular: sparkexecutor
+  scope: Namespaced
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              executorId:
+                type: string
+              executorHostname:
+                type: string
+              osInfo:
+                type: string
+              javaVersion:
+                type: string
+              numRunningTasks:
+                type: integer
+                #type: array
+                #items:
+                #  type: object
+                #  properties:
+                #    name:
+                #      type: string
+                #    addresses:
+                #      type: array
+                #      items:
+                #        type: string
+              type:
+                type: string
+          status:
+            type: object
+
+
+

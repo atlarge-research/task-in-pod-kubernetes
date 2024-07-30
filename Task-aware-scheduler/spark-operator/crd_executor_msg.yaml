@@ -1,0 +1,33 @@
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: sparkexecmsgs.example.com
+spec:
+  group: example.com
+  names:
+    kind: SparkExecMsg
+    listKind: SparkExecMsgList
+    plural: sparkexecmsgs
+    singular: sparkexecmsg
+  scope: Namespaced
+  versions:
+  - name: v1
+    served: true
+    storage: true
+    schema:
+      openAPIV3Schema:
+        type: object
+        properties:
+          spec:
+            type: object
+            properties:
+              message:
+                type: string
+              executorId:
+                type: string
+              type:
+                type: string
+              task_id:
+                type: string
+          status:
+            type: object
